@@ -1,0 +1,25 @@
+FROM alpine/git AS git
+
+RUN git clone https://github.com/immunogenomics/HLA-TAPAS /usr/share/hla-tapas
+
+
+FROM mambaorg/micromamba:1.1.0
+
+COPY --chown=$MAMBA_USER:$MAMBA_USER containers/env.yaml /tmp/env.yaml
+RUN micromamba install -y -n base -f /tmp/env.yaml && \
+    micromamba clean --all --yes
+
+COPY --from=git /usr/share/hla-tapas /usr/share/hla-tapas
+
+# RUN mkdir -p /usr/share/hla-tapas/dependency
+# RUN ln `which beagle` /usr/share/hla-tapas/dependency/beagle.jar
+# RUN ln `which plink` /usr/share/hla-tapas/dependency/plink
+# RUN wget https://faculty.washington.edu/browning/beagle_utilities/beagle2vcf.jar -O /usr/share/hla-tapas/dependency/beagle2vcf.jar
+# RUN wget https://faculty.washington.edu/browning/beagle_utilities/linkage2beagle.jar -O /usr/share/hla-tapas/dependency/linkage2beagle.jar
+# RUN wget https://faculty.washington.edu/browning/beagle_utilities/vcf2beagle.jar -O /usr/share/hla-tapas/dependency/vcf2beagle.jar
+
+USER root
+RUN chmod +x /usr/share/hla-tapas/dependency/*
+
+USER $MAMBA_USER
+RUN echo 'export PYTHONPATH=/usr/share/hla-tapas/:$PYTHONPATH' >> ~/.bashrc
