@@ -1,5 +1,5 @@
-params.samples = file('samples.csv')
-params.reference = "/path-to/reference-panel.phased.vcf.gz"
+params.samples = false
+params.reference = false
 
 
 process HLAimputation {
@@ -28,6 +28,10 @@ process HLAimputation {
 }
 
 workflow {
+    if (!params.samples) {
+        error "Error: missing csv file --samples"
+    }
+
     // Get the list of samples from csv file
     samples = Channel.fromPath(params.samples)
                 .splitCsv(header: true)
@@ -39,7 +43,8 @@ workflow {
         reference_files = Channel.fromPath(params.reference + "{,.tbi}")
         HLAimputation(samples, reference_files)
     } else {
-        HLAimputation(samples)
+        print "Using default reference panel"
+        HLAimputation(samples, params.reference)
     }
 
 }
