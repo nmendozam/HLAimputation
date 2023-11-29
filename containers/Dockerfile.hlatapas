@@ -22,4 +22,6 @@ USER root
 RUN chmod +x /usr/share/hla-tapas/dependency/*
 
 USER $MAMBA_USER
-RUN echo 'export PYTHONPATH=/usr/share/hla-tapas/:$PYTHONPATH' >> ~/.bashrc
+
+ENV PYTHONPATH=/usr/share/hla-tapas/:$PYTHONPATH
+ENV PATH=/opt/conda/bin:/opt/conda/condabin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
